@@ -1,4 +1,9 @@
 # Old Bailey Verdict Prediction Model
+## Usage:
+- throw this ipynb into colab and it should be good to run
+- here is the old bailey website but I used some precleaned stuff from another prof's class repo: https://www.oldbaileyonline.org/about/verdicts
+
+![jpg](Old_Bailey_Verdict_Prediction_Model_files/from_old_bailey_website.jpg)
 
 ## Report:
 #### Section 1: The Purpose of my Task
@@ -100,9 +105,6 @@ I doubt it would be accepted. I think part of the court process is in a group of
 onto blame for their verdict. The context of a peer judgement holds true even formally, and
 the ability to feel the weight of the decision gives a sense of legitimacy that judgements
 echo people’s sentiment.
-
-## Usage:
-- throw this ipynb into colab and it should be good to run
 
 ## Code:
 
