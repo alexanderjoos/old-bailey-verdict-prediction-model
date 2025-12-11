@@ -6,6 +6,7 @@ Welcome! In short, I wanted to try my luck at a guilt predictor. I liked the qua
 - here is the old bailey website but I used some precleaned stuff from another prof's class repo: https://www.oldbaileyonline.org/about/verdicts
 
 ![jpg](Old_Bailey_Verdict_Prediction_Model_files/from_old_bailey_website.jpg)
+(Source: https://www.oldbaileyonline.org/about/verdicts)
 
 ## Report:
 #### Section 1: The Purpose of my Task
