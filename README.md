@@ -1,5 +1,106 @@
 # Old Bailey Verdict Prediction Model
 
+## Report:
+#### Section 1: The Purpose of my Task
+To formally define this new purpose: I want to finetune a huggingface provided LLM
+with historical case briefs from the old Bailey, so by feeding in an anonymized case brief,
+the model would return a verdict either ‘GUILTY’ or ‘NOT GUILTY’. For now, this model is
+limited in experience to 300 years of British 20th century verdicts, however positive results
+could yield a judging assistant acting as a double jury, or even mediating arguments over
+text mediums like discord or groupMe.
+The idea of an unbiased AI judge is both appealing and concerning. Morally, ever
+relying on these models would be a big scare, however I think that the overall idea of
+applying ‘human’ tasks to LLM’s is an interesting way to see the bounds that next token
+prediction can produce. For the example of this task, I’m really only concerned with one
+prediction/generation, where I hope that the finetuning trains the model to utilize its
+context to find commonalities of these guilty verdicts. I took a 20 sample test on these
+verdicts and scored 75%, and hope to get the model to consistently outperform my score. I
+put these questions at the bottom of the colab notebook if you want to try it out for yourself.
+While I could perform better just by picking the majority class, (imbalanced towards
+GUILTY), there were noticeable patterns. For example, the prosecutor not showing up was
+indicative of a NOT GUILTY verdict.
+
+#### Section 2: Decisions and Challenges I Encountered During Training
+My first major challenge was finding a setup that didn’t overuse all of the gpu
+memory in colab. Last time when we finetuned, the GPU drove all of the performance for
+5
+our better loss models, however with the large number of rows and high text length of the
+case briefs, I had to selectively scale down certain areas of this project. I first set an
+arbitrary cutoff to the text length. This adjustment lowered row and token count, which
+translates to fewer matrix multiplications and a smaller context window. The next iteration
+of downscaling came from lowering the model size, and training arguments. I switched to
+the pythia 410m model (from 1b). I feel that downweighing the model size was worth the
+tradeoff in complexity that additional layers and attention heads would yield for an
+increase in training speed. With greedier parameters runtimes would take upwards of an
+hour, which limited my ability to tune small adjustments. I felt that it brought more value
+to the project, given an understanding that much of the brief to brief similarity could be
+captured strictly with word counts. I noticed that the outputs were often giving unrelated or
+nonsense tokens. To remedy this issue, I lowered model size again to the 70m parameter
+model, and increased the threshold for evidence length allowed in the finetuning dataset. I
+also set do_sample = false in my generation parameters. Between these two changes. The
+model would have higher specialization on the data, and at the same time being less
+encouraged to look for tokens outside of the provided data.
+#### Section 3: A Discussion of how I Evaluated my Results
+As discussed in Section 0, I designed the revision to have measurable performance in
+terms of output, meaning my analysis didn’t have to strictly rely on loss metrics, which
+were harder to interpret in context. I iterated through the outputs, extracted guilt, created
+an array y_pred, and created an array of gold labels from the original dataset y_true. This
+allowed me to run a classification report in addition to the cross entropy loss. The
+6
+Above: The above reports show accuracy measures for first the model, second random
+choice, and third selecting the majority class. (left) The 70m and (right) 410m pythia models
+both performed worse than the majority classifier, but higher f1 over random assignment
+shows indication of weight changes favoring ‘GUILTY’ labels.
+classification reports allowed a direct measure of correctness, which often showed a
+different story than the loss metrics. Further evidence of meaningful change to the base
+model’s weights was found when I looked at the cross entropy loss. Because the data we
+split into a train-test split, the significantly higher training loss (~54 for both models) was
+contextualized by evaluation loss of 1.94 and 1.98 (below results from the anti-trust model),
+showing that the low compute available was likely holding back the optimal amount of
+training time, however, the model’s output still minimized loss on unseen data. This also
+served as another indicator that adding additional finetuning data was the right call, as the
+minimal rows with very low training loss could have resulted in overfitting in Group Work
+4/. These earlier results helped to contextualize the values for this problem, and from there I
+moved up to a larger gpu and model (410m), with lower learning rate and a doubled batch
+size. These changes were aimed at getting more stable gradient descent, and with weight
+changes leveraging more datapoints and tuning less aggressively, I hoped to overshoot
+fewer minima. This proved to be the case, as this final model had half the training loss at
+~24, but performed the worst of all models at guessing guilt from the real data with f1
+below 0.4 in both GUILTY and NOT
+GUILTY. On the other hand I ran the 1b
+model (right) , got 78 training loss, and
+outperformed the majority class’s
+weighted average by 0.11!
+With training and tuning
+parameters, the model’s performance on
+this guilt identifying task didn’t meet
+human standards, at the cost of leaving
+high-risk criminals to a hugging face
+model. Why didn’t it work? I think that
+the first glaring issue is the constraints to
+how much information the model could
+process at a time. It's hard to say if
+additional training would improve the
+classification, given that the worst f1
+came from the best training loss. One
+possibility is that shorter cases tended to
+be NOT GUILTY, which could mean that
+after a certain point the training data
+improved loss by guessing the majority,
+and when the majority flipped in the
+7
+evaluation, it was reflected in the f1. This leads me to suggest more training, but in any
+business setting I feel like throwing money at a so far worthless model is a bad idea. That
+being said, notable improvement was made just by using a larger model. This supports the
+pseudo-optimistic possibility that this sort of binary classification is only sufficient given
+real intelligence in a court environment influenced by tone, argument, and reactions, and
+interplay between numerous elements overall. I have a hard time believing that a model
+couldn’t find optimal weights given enough data, but even if it did work with 90% accuracy
+I doubt it would be accepted. I think part of the court process is in a group of people holding
+onto blame for their verdict. The context of a peer judgement holds true even formally, and
+the ability to feel the weight of the decision gives a sense of legitimacy that judgements
+echo people’s sentiment.
+
 ## Usage:
 - throw this ipynb into colab and it should be good to run
 
