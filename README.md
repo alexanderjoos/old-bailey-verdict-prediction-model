@@ -1,4 +1,6 @@
 # Old Bailey Verdict Prediction Model
+Welcome! In short, I wanted to try my luck at a guilt predictor. I liked the quality/format of this dataset, and appreciate its oldness when coming around to guilt. If you have some time checkout some of the cases, they get pretty crazy! I finetuned a huggingface model in colab, so feel free to checkout what I did. Be warned that this may take your device an uncomfortably long time to run. Thanks!
+
 ## Usage:
 - throw this ipynb into colab and it should be good to run
 - here is the old bailey website but I used some precleaned stuff from another prof's class repo: https://www.oldbaileyonline.org/about/verdicts
